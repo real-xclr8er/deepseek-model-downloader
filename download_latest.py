@@ -4,110 +4,139 @@ import argparse
 from tqdm import tqdm
 
 class ModelDownloader:
-    def __init__(self, base_dir="E:/DS"):
+    def __init__(self, base_dir="e:/ds"):
         self.base_dir = base_dir
         self.models_dir = os.path.join(base_dir, "models")
-        
+
         # Available models
         self.available_models = {
-            "chat-7b": {
+            "deepseek-chat-7b": {
                 "repo": "deepseek-ai/deepseek-llm-7b-chat",
                 "dir": "deepseek-chat-7b",
-                "size": "~15GB"
+                "size": "~15gb"
             },
-            "coder-33b": {
+            "deepseek-coder-33b": {
                 "repo": "deepseek-ai/deepseek-coder-33b-base",
                 "dir": "deepseek-coder-33b",
-                "size": "~60GB"
+                "size": "~60gb"
             },
-            "coder-6.7b": {
+            "deepseek-coder-6.7b": {
                 "repo": "deepseek-ai/deepseek-coder-6.7b-base",
                 "dir": "deepseek-coder-6.7b",
-                "size": "~15GB"
+                "size": "~15gb"
             },
-            "llm-7b": {
+            "deepseek-llm-7b": {
                 "repo": "deepseek-ai/deepseek-llm-7b-base",
                 "dir": "deepseek-llm-7b",
-                "size": "~15GB"
+                "size": "~15gb"
+            },
+            "deepseek-r1-zero": {
+                "repo": "deepseek-ai/deepseek-r1-zero",
+                "dir": "deepseek-r1-zero",
+                "size": "very large (~700gb or more)"
+            },
+            "deepseek-r1": {
+                "repo": "deepseek-ai/deepseek-r1",
+                "dir": "deepseek-r1",
+                "size": "very large (~700gb or more)"
+            },
+            "deepseek-r1-distill-qwen-1.5b": {
+                "repo": "qwen/qwen2.5-math-1.5b",
+                "dir": "deepseek-r1-distill-qwen-1.5b",
+                "size": "~1.5b"
+            },
+            "deepseek-r1-distill-qwen-7b": {
+                "repo": "qwen/qwen2.5-math-7b",
+                "dir": "deepseek-r1-distill-qwen-7b",
+                "size": "~7b"
+            },
+            "deepseek-r1-distill-qwen-14b": {
+                "repo": "qwen/qwen2.5-14b",
+                "dir": "deepseek-r1-distill-qwen-14b",
+                "size": "~14b"
+            },
+            "deepseek-r1-distill-qwen-32b": {
+                "repo": "qwen/qwen2.5-32b",
+                "dir": "deepseek-r1-distill-qwen-32b",
+                "size": "~32b"
+            },
+            "deepseek-r1-distill-llama-70b": {
+                "repo": "meta-llama/llama-3.3-70b-instruct",
+                "dir": "deepseek-r1-distill-llama-70b",
+                "size": "~70b"
+            },
+            "deepseek-r1-distill-llama-8b": {
+                "repo": "meta-llama/llama-3.1-8b",
+                "dir": "deepseek-r1-distill-llama-8b",
+                "size": "~8b"
             }
         }
 
     def setup_directories(self):
         """Create necessary directories if they don't exist"""
         os.makedirs(self.models_dir, exist_ok=True)
-        print(f"Storage directory ready at: {self.models_dir}")
+        print(f"storage directory ready at: {self.models_dir}")
 
     def download_model(self, model_key):
         """Download a specific model"""
         if model_key not in self.available_models:
-            print(f"Error: {model_key} is not a valid model selection")
+            print(f"error: {model_key} is not a valid model selection")
             return False
 
         model_data = self.available_models[model_key]
         model_dir = os.path.join(self.models_dir, model_data["dir"])
-        
-        print(f"\nPreparing to download {model_key}")
-        print(f"Approximate size: {model_data['size']}")
-        print(f"Target directory: {model_dir}")
-        
+
+        print(f"\npreparing to download {model_key}")
+        print(f"approximate size: {model_data['size']}")
+        print(f"target directory: {model_dir}")
+
         try:
             snapshot_download(
                 repo_id=model_data["repo"],
                 local_dir=model_dir,
                 local_dir_use_symlinks=False
             )
-            print(f"\nSuccessfully downloaded {model_key}")
+            print(f"\nsuccessfully downloaded {model_key}")
             return True
         except Exception as e:
-            print(f"Error downloading {model_key}: {e}")
+            print(f"error downloading {model_key}: {e}")
             return False
 
     def get_latest_model_info(self, model_key):
         """Get the latest version and metadata for a model"""
         if model_key not in self.available_models:
-            print(f"Error: {model_key} is not a valid model selection")
+            print(f"error: {model_key} is not a valid model selection")
             return
 
         model_data = self.available_models[model_key]
-        print(f"\nChecking latest version for {model_key}...")
+        print(f"\nchecking latest version for {model_key}...")
         try:
             info = hf_model_info(model_data["repo"])
-            print(f"Latest version: {info.sha}")
-            print(f"Last modified: {info.lastModified}")
-            print(f"Downloads: {info.downloads}")
+            print(f"latest version: {info.sha}")
+            print(f"last modified: {info.lastModified}")
+            print(f"downloads: {info.downloads}")
         except Exception as e:
-            print(f"Error fetching model info: {e}")
+            print(f"error fetching model info: {e}")
 
 def display_menu():
     """Display the main interactive menu"""
-    print("\nAvailable models:")
-    print("1. deepseek-chat-7b (~15GB)")
-    print("2. deepseek-coder-33b (~60GB)")
-    print("3. deepseek-coder-6.7b (~15GB)")
-    print("4. deepseek-llm-7b (~15GB)")
-    print("5. Get model info (without downloading)")
-    print("6. Exit")
-
-def display_info_menu():
-    """Display the submenu for selecting a model to get info on"""
-    print("\nSelect a model to get info:")
-    print("1. deepseek-chat-7b")
-    print("2. deepseek-coder-33b")
-    print("3. deepseek-coder-6.7b")
-    print("4. deepseek-llm-7b")
-    print("5. Back to main menu")
+    print("\navailable models:")
+    for index, (key, data) in enumerate(ModelDownloader().available_models.items(), 1):
+        print(f"{index}. {key} ({data['size']})")
+    print(f"{len(ModelDownloader().available_models) + 1}. get model info (without downloading)")
+    print(f"{len(ModelDownloader().available_models) + 2}. exit")
 
 def main():
-    parser = argparse.ArgumentParser(description='Download DeepSeek models')
-    parser.add_argument('--model', type=str, choices=['chat-7b', 'coder-33b', 'coder-6.7b', 'llm-7b'],
-                      help='Which model to download')
-    parser.add_argument('--info', type=str, choices=['chat-7b', 'coder-33b', 'coder-6.7b', 'llm-7b'],
-                      help='Get latest version and metadata for a model')
-    
+    parser = argparse.ArgumentParser(description='download deepseek models')
+    parser.add_argument('--model', type=str, choices=list(ModelDownloader().available_models.keys()),
+                      help='which model to download')
+    parser.add_argument('--info', type=str, choices=list(ModelDownloader().available_models.keys()),
+                      help='get latest version and metadata for a model')
+
     args = parser.parse_args()
-    
+
     downloader = ModelDownloader()
-    
+
     if args.model:
         downloader.setup_directories()
         downloader.download_model(args.model)
@@ -116,42 +145,38 @@ def main():
     else:
         while True:
             display_menu()
-            choice = input("\nEnter your choice (1-6): ").strip()
-            
-            if choice == "1":
-                downloader.setup_directories()
-                downloader.download_model("chat-7b")
-            elif choice == "2":
-                downloader.setup_directories()
-                downloader.download_model("coder-33b")
-            elif choice == "3":
-                downloader.setup_directories()
-                downloader.download_model("coder-6.7b")
-            elif choice == "4":
-                downloader.setup_directories()
-                downloader.download_model("llm-7b")
-            elif choice == "5":
-                while True:
-                    display_info_menu()
-                    info_choice = input("\nEnter your choice (1-5): ").strip()
-                    
-                    if info_choice == "1":
-                        downloader.get_latest_model_info("chat-7b")
-                    elif info_choice == "2":
-                        downloader.get_latest_model_info("coder-33b")
-                    elif info_choice == "3":
-                        downloader.get_latest_model_info("coder-6.7b")
-                    elif info_choice == "4":
-                        downloader.get_latest_model_info("llm-7b")
-                    elif info_choice == "5":
-                        break  # Go back to the main menu
-                    else:
-                        print("Invalid choice. Please try again.")
-            elif choice == "6":
-                print("Exiting...")
-                break
-            else:
-                print("Invalid choice. Please try again.")
+            choice = input("\nenter your choice: ").strip()
+            try:
+                choice = int(choice)
+                if 1 <= choice <= len(downloader.available_models):
+                    model_key = list(downloader.available_models.keys())[choice - 1]
+                    downloader.setup_directories()
+                    downloader.download_model(model_key)
+                elif choice == len(downloader.available_models) + 1:
+                    while True:
+                        print("\nselect a model to get info:")
+                        for index, key in enumerate(downloader.available_models.keys(), 1):
+                            print(f"{index}. {key}")
+                        print(f"{len(downloader.available_models) + 1}. back to main menu")
+                        info_choice = input("\nenter your choice: ").strip()
+                        try:
+                            info_choice = int(info_choice)
+                            if 1 <= info_choice <= len(downloader.available_models):
+                                model_key = list(downloader.available_models.keys())[info_choice - 1]
+                                downloader.get_latest_model_info(model_key)
+                            elif info_choice == len(downloader.available_models) + 1:
+                                break
+                            else:
+                                print("invalid choice, try again.")
+                        except ValueError:
+                            print("invalid input, enter a number.")
+                elif choice == len(downloader.available_models) + 2:
+                    print("exiting...")
+                    break
+                else:
+                    print("invalid choice, try again.")
+            except ValueError:
+                print("invalid input, enter a number.")
 
 if __name__ == "__main__":
     main()
